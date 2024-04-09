@@ -1,4 +1,3 @@
-
 Creación, Transferencia y Cierre de Activos Digitales en Algorand Testnet
 Este README proporciona una guía paso a paso del código que realiza una serie de acciones en la red de prueba de Algorand para demostrar la creación, transferencia y cierre de un activo digital personalizado.
 
