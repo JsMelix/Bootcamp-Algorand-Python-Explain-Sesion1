@@ -1,94 +1,94 @@
-# Interacción con Activos Digitales en Algorand Testnet
+# Creación, Transferencia y Cierre de Activos Digitales en Algorand Testnet
 
-Este README proporciona una guía detallada del código que ejecuta una serie de operaciones en la red de prueba de Algorand. El código proporcionado se centra en la creación, transferencia y cierre de activos digitales personalizados. A continuación, se desglosa cada paso del código de una manera más amigable y visual:
+Este README proporciona una explicación detallada del código que realiza una serie de acciones en la red de prueba de Algorand para demostrar la creación, transferencia y cierre de un activo digital personalizado.
 
----
+## Explicación Detallada del Código
 
-## Tabla de Contenidos
+### 1. Importación de la Biblioteca y Creación del Cliente
 
-1. [Importación de Bibliotecas y Creación del Cliente](#importación-de-bibliotecas-y-creación-del-cliente)
-2. [Creación de Cuentas para Alice y Bob](#creación-de-cuentas-para-alice-y-bob)
-3. [Obtención de Información de las Cuentas](#obtención-de-información-de-las-cuentas)
-4. [Financiamiento de la Cuenta de Alice](#financiamiento-de-la-cuenta-de-alice)
-5. [Creación de un Activo Digital por Alice](#creación-de-un-activo-digital-por-alice)
-6. [Financiamiento de la Cuenta de Bob y Optar por el Activo](#financiamiento-de-la-cuenta-de-bob-y-optar-por-el-activo)
-7. [Transferencia del Activo de Alice a Bob](#transferencia-del-activo-de-alice-a-bob)
-8. [Mostrar Información de las Cuentas y Balances del Activo](#mostrar-información-de-las-cuentas-y-balances-del-activo)
-9. [Grupo de Transacciones Atómicas](#grupo-de-transacciones-atómicas)
-10. [Mostrar Nuevos Balances del Activo](#mostrar-nuevos-balances-del-activo)
-11. [Mostrar Información de Bob y su MBR](#mostrar-información-de-bob-y-su-mbr)
-12. [Cerrar la Cuenta del Activo para Bob](#cerrar-la-cuenta-del-activo-para-bob)
+```javascript
+import * as algokit from '@algorandfoundation/algokit-utils';
 
----
+const algorand = algokit.AlgorandClient.defaultLocalNet();
+Se importa la biblioteca algokit-utils de Algorand y se crea un cliente para la red de prueba local.
 
-## 1. Importación de Bibliotecas y Creación del Cliente
+2. Creación de Cuentas para Alice y Bob
+javascript
+Copy code
+const bob = algorand.account.random();
+const alice = algorand.account.random();
 
-Para comenzar, importamos la biblioteca `algokit-utils`, que nos permite interactuar con la red de Algorand. Luego, establecemos un cliente para conectarnos a la red de prueba local (testnet).
+console.log("Direccion de Alice: ", alice.addr);
+console.log("Direccion de Bob: ", bob.addr);
+Se generan cuentas aleatorias para Alice y Bob, y se imprime la dirección de cada cuenta en la consola.
 
----
+3. Obtener Información de las Cuentas
+javascript
+Copy code
+console.log("Informacion completa de Alice: ", await algorand.account.getInformation(alice.addr));
+console.log("Informacion completa de Bob: ", await algorand.account.getInformation(bob.addr));
+Se obtiene información detallada de las cuentas de Alice y Bob, como saldo y dirección, y se muestra en la consola.
 
-## 2. Creación de Cuentas para Alice y Bob
+4. Financiar la Cuenta de Alice
+javascript
+Copy code
+const dispenser = await algorand.account.dispenser();
+await algorand.send.payment({
+  sender: dispenser.addr,
+  receiver: alice.addr,
+  amount: algokit.algos(10),
+});
+Se obtiene una cuenta dispensadora y se envían 10 Algos desde ella a la cuenta de Alice.
 
-Generamos cuentas aleatorias para Alice y Bob, y mostramos sus direcciones respectivas en la consola.
+5. Creación de un Activo Digital por Alice
+javascript
+Copy code
+const result = await algorand.send.assetCreate({
+  sender: alice.addr,
+  total: 10n,
+});
 
----
+const assetId = BigInt(result.confirmation.assetIndex!);
+Alice crea un nuevo activo digital con un suministro total de 10 unidades y se guarda el ID del activo.
 
-## 3. Obtención de Información de las Cuentas
+6. Financiar la Cuenta de Bob y Optar por el Activo
+javascript
+Copy code
+await algorand.send.payment({
+  sender: dispenser.addr,
+  receiver: bob.addr,
+  amount: algokit.algos(10),
+});
+await algorand.send.assetOptIn({
+  sender: bob.addr,
+  assetId,
+});
+Se envían 10 Algos a la cuenta de Bob y Bob opta por recibir el activo creado por Alice.
 
-A continuación, obtenemos detalles sobre las cuentas de Alice y Bob, como sus saldos y direcciones, que se muestran claramente en la consola.
+7. Transferencia del Activo de Alice a Bob
+javascript
+Copy code
+await algorand.send.assetTransfer({
+  sender: alice.addr,
+  receiver: bob.addr,
+  assetId,
+  amount: 1n,
+});
+Alice transfiere 1 unidad del activo a Bob.
 
----
+8. Mostrar Información de las Cuentas y Balances del Activo
+Se muestra la información completa de Bob y los balances del activo para Alice y Bob.
 
-## 4. Financiamiento de la Cuenta de Alice
+9. Grupo de Transacciones Atómicas
+Se crea un grupo de transacciones atómicas que incluye un pago de 1 Algo de Alice a Bob y una transferencia del activo de Bob a Alice.
 
-Alice recibe un financiamiento inicial de 10 Algos desde la cuenta dispensadora de la red de prueba. Luego, verificamos que Alice haya recibido los fondos correctamente.
+10. Mostrar Nuevos Balances del Activo
+Se muestra el nuevo balance del activo para Alice y Bob después de la transacción atómica.
 
----
+11. Mostrar Información de Bob y su MBR
+Se muestra la información completa de la cuenta de Bob y su MBR.
 
-## 5. Creación de un Activo Digital por Alice
+12. Cerrar la Cuenta del Activo para Bob
+Bob transfiere 0 unidades del activo a Alice y cierra su cuenta asociada con el activo.
 
-Alice crea un nuevo activo digital con un suministro total de 10 unidades. Se muestra el ID del activo recién creado junto con detalles sobre la transacción.
-
----
-
-## 6. Financiamiento de la Cuenta de Bob y Optar por el Activo
-
-Bob también recibe un financiamiento inicial de 10 Algos. Luego, Bob elige recibir el activo creado por Alice para poder realizar transacciones con él.
-
----
-
-## 7. Transferencia del Activo de Alice a Bob
-
-Alice transfiere 1 unidad del activo a Bob para demostrar cómo se pueden realizar transferencias de activos digitales entre cuentas.
-
----
-
-## 8. Mostrar Información de las Cuentas y Balances del Activo
-
-Se muestra una vista completa de la cuenta de Bob, así como los balances actuales del activo para ambas cuentas de Alice y Bob.
-
----
-
-## 9. Grupo de Transacciones Atómicas
-
-Se lleva a cabo un grupo de transacciones atómicas, garantizando que las operaciones se ejecuten de manera coherente. Esto incluye un pago de 1 Algo de Alice a Bob y una transferencia de 1 unidad del activo de Bob a Alice.
-
----
-
-## 10. Mostrar Nuevos Balances del Activo
-
-Después de la transacción atómica, se actualizan los balances del activo para Alice y Bob, lo que se muestra claramente para una fácil comprensión.
-
----
-
-## 11. Mostrar Información de Bob y su MBR
-
-Se presenta una visión general de la cuenta de Bob, incluido su "minimum balance requirement" (MBR), que es crucial para mantener cuentas activas en Algorand.
-
----
-
-## 12. Cerrar la Cuenta del Activo para Bob
-
-Por último, Bob transfiere 0 unidades del activo a Alice y cierra su cuenta asociada con el activo, asegurándose de que todos los fondos restantes sean transferidos correctamente.
-
----
+Este código demuestra cómo interactuar con activos digitales personalizados en Algorand, incluyendo su creación, transferencia y cierre de cuentas asociadas. Proporciona una visión completa del proceso y permite entender cómo funcionan las operaciones en la red de Algorand.
