@@ -10,6 +10,7 @@ Este README proporciona una explicación detallada del código que realiza una s
 import * as algokit from '@algorandfoundation/algokit-utils';
 
 const algorand = algokit.AlgorandClient.defaultLocalNet();
+
 Se importa la biblioteca algokit-utils de Algorand y se crea un cliente para la red de prueba local.
 
 2. Creación de Cuentas para Alice y Bob
@@ -18,15 +19,15 @@ Copy code
 const bob = algorand.account.random();
 const alice = algorand.account.random();
 
-console.log("Direccion de Alice: ", alice.addr);
-console.log("Direccion de Bob: ", bob.addr);
+console.log("Dirección de Alice: ", alice.addr);
+console.log("Dirección de Bob: ", bob.addr);
 Se generan cuentas aleatorias para Alice y Bob, y se imprime la dirección de cada cuenta en la consola.
 
 3. Obtener Información de las Cuentas
 javascript
 Copy code
-console.log("Informacion completa de Alice: ", await algorand.account.getInformation(alice.addr));
-console.log("Informacion completa de Bob: ", await algorand.account.getInformation(bob.addr));
+console.log("Información completa de Alice: ", await algorand.account.getInformation(alice.addr));
+console.log("Información completa de Bob: ", await algorand.account.getInformation(bob.addr));
 Se obtiene información detallada de las cuentas de Alice y Bob, como saldo y dirección, y se muestra en la consola.
 
 4. Financiar la Cuenta de Alice
